@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Dynamic SEO Meta Tags -->
+    <title id="pageMetaTitle"></title>
+    <meta name="description" id="pageMetaDescription" content="">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" id="pageMetaUrl" content="">
+    <meta property="og:title" id="pageMetaOgTitle" content="">
+    <meta property="og:description" id="pageMetaOgDescription" content="">
+    <meta property="og:image" id="pageMetaOgImage" content="">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" id="pageMetaTwitterUrl" content="">
+    <meta property="twitter:title" id="pageMetaTwitterTitle" content="">
+    <meta property="twitter:description" id="pageMetaTwitterDescription" content="">
+    <meta property="twitter:image" id="pageMetaTwitterImage" content="">
+    <meta name="twitter:creator" id="pageMetaTwitterCreator" content="">
+    
+    <!-- Additional SEO Tags (Dynamically added) -->
+    <div id="additionalMetaTags"></div>
+    
+    <link rel="canonical" id="pageCanonicalUrl" href="">
+    
+    <!-- Existing Style Links -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Schema.org Markup -->
+    <script type="application/ld+json" id="schemaMarkup"></script>
+</head>
+<body>
+    <main class="container">
+        <div class="profile">
+            <img id="profileImage" src="" alt="" style="display: none;">
+            <h1 id="pageTitle"></h1>
+            <p id="bio"></p>
+            <p id="description" style="display: none;"></p>
+        </div>
+        <nav id="linksContainer" aria-label="Social and content links"></nav>
+        <footer id="footer" style="display: none;"></footer>
+    </main>
+    <button id="topButton" class="top-button" aria-label="Scroll to top">
+        <i class="fas fa-chevron-up" aria-hidden="true"></i>
+    </button>
+    <script src="config.js"></script>
+    <script src="main.js"></script>
+</body>
+</html> 
+
+<!-- Links To Go by Uzay Yildirim - Open Source Link In Bio Tool - https://uzay.me -->
