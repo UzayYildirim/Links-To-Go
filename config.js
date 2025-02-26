@@ -32,6 +32,16 @@ const config = {
             title: "Photography Portfolio",
             description: "Capturing moments in time",
             extend: "Explore my collection of landscape and portrait photography. Each image tells a story of the world around us, frozen in a single moment. From urban landscapes to natural wonders, my lens seeks to capture the extraordinary in the ordinary.",
+            urls: [
+                {
+                    title: "Personal Portfolio",
+                    url: "https://example.com/photos"
+                },
+                {
+                    title: "Instagram",
+                    url: "https://instagram.com/example"
+                }
+            ],
             url: "https://example.com/photos",
             color: "#FF6B6B",
             icon: "fas fa-camera-retro",
@@ -156,6 +166,10 @@ const config = {
                     buttons: '1px 1px 2px rgba(0, 0, 0, 0.3)'
                 }
             }
+        },
+        buttons: {
+            linksText: "Open Links",
+            visitText: "Go to Site"
         }
     },
 

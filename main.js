@@ -122,13 +122,9 @@ if (bg.type === 'image') {
 const linksContainer = document.getElementById('linksContainer');
 config.links.sort((a, b) => a.index - b.index).forEach((link, index) => {
     const linkButton = document.createElement('a');
-    linkButton.href = link.extend ? 'javascript:void(0)' : link.url;
+    linkButton.href = 'javascript:void(0)';  // Always prevent default since we handle clicks
     linkButton.className = 'link-button';
     linkButton.style.backgroundColor = `${link.color}dd`;
-    if (!link.extend) {
-        linkButton.target = '_blank';
-        linkButton.rel = 'noopener noreferrer';
-    }
 
     // Create main content
     const mainContent = document.createElement('div');
@@ -144,21 +140,38 @@ config.links.sort((a, b) => a.index - b.index).forEach((link, index) => {
 
     linkButton.appendChild(mainContent);
 
-    // Add extend content if available
+    // Handle content based on link type
     if (link.extend) {
         const extendContent = document.createElement('div');
         extendContent.className = 'extend-content';
         extendContent.textContent = link.extend;
         linkButton.appendChild(extendContent);
 
-        // Add click handler
+        // Add click handler for accordion
         linkButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            linkButton.classList.toggle('extended');
+            if (!e.target.closest('.popup-content') && !e.target.closest('.external-link')) {
+                linkButton.classList.toggle('extended');
+            }
         });
 
-        // Add external link at the bottom of extended content
-        if (link.url) {
+        // Add links section if urls are present
+        if (link.urls) {
+            const linksButton = document.createElement('a');
+            linksButton.href = 'javascript:void(0)';
+            linksButton.className = 'external-link';
+            linksButton.innerHTML = `
+                <i class="fas fa-external-link-alt"></i>
+                ${config.theme.buttons?.linksText || 'Links'}
+            `;
+            linksButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                showUrlPopup(link);
+            });
+            extendContent.appendChild(linksButton);
+        }
+        // Add single external link if url is present
+        else if (link.url) {
             const externalLink = document.createElement('a');
             externalLink.href = link.url;
             externalLink.target = '_blank';
@@ -166,14 +179,73 @@ config.links.sort((a, b) => a.index - b.index).forEach((link, index) => {
             externalLink.className = 'external-link';
             externalLink.innerHTML = `
                 <i class="fas fa-external-link-alt"></i>
-                Visit
+                ${config.theme.buttons?.visitText || 'Visit'}
             `;
             extendContent.appendChild(externalLink);
         }
     }
+    // For non-accordion buttons with multiple urls
+    else if (link.urls) {
+        linkButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            showUrlPopup(link);
+        });
+    }
+    // For simple single-url buttons
+    else if (link.url) {
+        linkButton.href = link.url;
+        linkButton.target = '_blank';
+        linkButton.rel = 'noopener noreferrer';
+    }
     
     linksContainer.appendChild(linkButton);
 });
+
+// Add this new function to handle the popup
+function showUrlPopup(link) {
+    // Create popup elements
+    const overlay = document.createElement('div');
+    overlay.className = 'popup-overlay';
+    
+    const content = document.createElement('div');
+    content.className = 'popup-content';
+    content.style.backgroundColor = `${link.color}dd`;
+    
+    content.innerHTML = `
+        <button class="popup-close">&times;</button>
+        <div class="popup-title">${link.title}</div>
+        <div class="popup-links">
+            ${link.urls.map(url => `
+                <a href="${url.url}" 
+                   class="popup-link" 
+                   target="_blank" 
+                   rel="noopener noreferrer">
+                    ${url.title || 'Link'}
+                </a>
+            `).join('')}
+        </div>
+    `;
+
+    overlay.appendChild(content);
+    document.body.appendChild(overlay);
+
+    // Animate in
+    requestAnimationFrame(() => {
+        overlay.classList.add('active');
+    });
+
+    // Handle close
+    const closePopup = () => {
+        overlay.classList.remove('active');
+        setTimeout(() => overlay.remove(), 300);
+    };
+
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closePopup();
+    });
+
+    content.querySelector('.popup-close').addEventListener('click', closePopup);
+}
 
 // Apply typography
 const typography = config.typography;
