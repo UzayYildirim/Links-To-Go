@@ -1,6 +1,13 @@
-![Links To Go Logo](https://i.ibb.co/21g826FC/Links-To-Go-Logo.png)
-
+<p align="center">
+  <img src="https://i.ibb.co/21g826FC/Links-To-Go-Logo.png" alt="Links To Go Logo" width="300">
+</p>
+<p align="center">
 A beautiful, customizable, and feature-rich "Link in Bio" solution that you can self-host. Create a stunning landing page for all your important links with advanced features, animations, and complete control over the appearance.
+  </p>
+<br>
+<p align="center">
+  <img src="https://i.ibb.co/Gv8pnMmh/Links-To-Go-Demo.png" alt="Links To Go Demo" width="600">
+</p>
 
 ## ✨ Features
 
