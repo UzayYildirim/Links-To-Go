@@ -1,231 +1,180 @@
 const config = {
     // QUICK START: Edit these values to personalize your page
     profile: {
-        title: "John Doe's Links",
-        image: "https://i.ibb.co/NgJ8m336/male-default-avatar-profile-gray-picture-grey-photo-placeholder-gray-profile-anonymous-face-picture.jpg",
-        bio: "A curated collection of interesting links",
+        title: "My Links", // Change this to your desired title
+        image: "", // Add your profile image URL here
+        bio: "", // Short bio or tagline
         description: {
-            text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            text: "", // Brief description about yourself or the page
             style: {
-                enabled: true,
-                background: 'rgba(0, 0, 0, 0.2)',
-                padding: '20px',
-                borderRadius: '12px',
-                backdropBlur: '10px',
-                border: '1px solid rgba(255, 255, 255, 0.1)'
+                enabled: true, // Enable or disable custom styling for the description
+                background: 'rgba(0, 0, 0, 0.2)', // Background color for description box
+                padding: '20px', // Padding inside the description box
+                borderRadius: '12px', // Rounded corners for the description box
+                backdropBlur: '10px', // Blur effect for the background
+                border: '1px solid rgba(255, 255, 255, 0.1)' // Border styling
             }
         },
         footer: {
-            text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. © 2025.",
+            text: "", // Footer text, e.g your copyright info or a personal note
             style: {
-                enabled: true,
-                opacity: 0.7,
-                fontSize: '14px',
-                marginTop: '40px'
+                enabled: true, // Enable or disable footer styling
+                opacity: 0.7, // Opacity of the footer text
+                fontSize: '14px', // Font size of the footer text
+                marginTop: '40px' // Space above the footer
             }
         }
     },
 
     // LINKS: Add your links here
     links: [
-        {
-            title: "Photography Portfolio",
-            description: "Capturing moments in time",
-            extend: "Explore my collection of landscape and portrait photography. Each image tells a story of the world around us, frozen in a single moment. From urban landscapes to natural wonders, my lens seeks to capture the extraordinary in the ordinary.",
-            urls: [
-                {
-                    title: "Personal Portfolio",
-                    url: "https://example.com/photos"
-                },
-                {
-                    title: "Instagram",
-                    url: "https://instagram.com/example"
-                }
-            ],
-            url: "https://example.com/photos",
-            color: "#FF6B6B",
-            icon: "fas fa-camera-retro",
-            index: 1
-        },
-        {
-            title: "Tech Blog",
-            description: "Insights & tutorials",
-            extend: "Deep dives into technology, programming, and digital innovation. Regular posts about software development, AI, and the future of tech.",
-            url: "https://example.com/blog",
-            color: "#4ECDC4",
-            icon: "fas fa-laptop-code",
-            index: 2
-        },
-        {
-            title: "Digital Art Gallery",
-            url: "https://example.com/art",
-            color: "#9B89B3",
-            icon: "fas fa-palette",
-            index: 3
-        },
-        {
-            title: "Music Playlist",
-            description: "My favorite tracks",
-            url: "https://example.com/music",
-            color: "#45B7D1",
-            icon: "fas fa-headphones-alt",
-            index: 4
-        },
-        {
-            title: "Travel Blog",
-            description: "Adventures around the world",
-            extend: "Join me on my journey across continents. From hidden gems in bustling cities to serene natural landscapes, I share travel tips, cultural insights, and unforgettable experiences.",
-            url: "https://example.com/travel",
-            color: "#96CEB4",
-            icon: "fas fa-globe-americas",
-            index: 5
-        },
-        {
-            title: "Podcast",
-            description: "Weekly discussions",
-            url: "https://example.com/podcast",
-            color: "#D4A373",
-            icon: "fas fa-microphone-alt",
-            index: 6
-        }
+        // EXAMPLE:
+        // {
+        //     title: "Example Link", // Required - The main title of the link
+        //     description: "An example of a complete link configuration", // Optional - A short description displayed below the title
+        //     extend: "This section provides more details about the link.", // Optional - An extended description providing additional details. When populated, button will be an accordion.
+        //     urls: [ // Optional - Convert this link button into an accordion. When clicked, it will expand to show a description and a button that displays all the defined links. This feature is unavailable if the "url" option is enabled.
+        //         {
+        //             title: "Sub-link 1", // Title of the first sub-link
+        //             url: "https://example.com/sub1" // URL of the first sub-link
+        //         },
+        //         {
+        //             title: "Sub-link 2", // Title of the second sub-link
+        //             url: "https://example.com/sub2" // URL of the second sub-link
+        //         }
+        //     ],
+        //     url: "https://example.com", // Optional - The main URL for this link. This option is unavailable if the "urls" option is enabled.
+        //     color: "#FF6B6B", // Optional -Background color for the link button
+        //     icon: "fas fa-link", // Optinal - FontAwesome icon class for the link
+        //     index: 1 // Required - Position of the link in the list (starting from 1)
+        // }
     ],
 
     // SEO Configuration
     seo: {
-        // Keywords are automatically generated from link titles but you can add more
-        additionalKeywords: ["portfolio", "personal page", "contact"],
-        // Override the auto-generated description if needed
-        customDescription: "", // Leave empty to use auto-generated
-        // Social media images (leave empty to use profile image)
+        additionalKeywords: [], // Optional - Add extra keywords for search optimization. Links To Go automatically generates keywords from the link titles, these are just in case you need to add more.
+        customDescription: "", // Optional - Override auto-generated descriptions if needed. Links To Go automatically generates descriptions from the link titles, these are just in case you need to override the defaults.
         images: {
-            og: "", // Open Graph
-            twitter: "" // Twitter (X)
+            og: "", // Optional - Open Graph image (for social sharing)
+            twitter: "" // Optional - Twitter (X) card image
         },
-        // Social media handles
         social: {
-            twitter: "@johndoe" // Twitter (X) handle
+            twitter: "" // Your Twitter (X) handle
         },
-        // Additional meta tags
-        meta: [
-            {
-                name: "theme-color",
-                content: "#4158D0"
-            }
-            // Add any additional meta tags here
-        ]
+        meta: [] // Optional - Add any extra meta tags here
     },
 
     // THEME: Customize the look and feel
     theme: {
         fonts: {
-            titles: "'Montserrat', sans-serif",
-            descriptions: "'Calibri', sans-serif"
+            titles: "'Montserrat', sans-serif", // Font for titles
+            descriptions: "'Calibri', sans-serif" // Font for descriptions
         },
         topButton: {
-            enabled: true,
-            showAfter: 20, // pixels scrolled
+            enabled: true, // Show a "back to top" button
+            showAfter: 20, // Pixels scrolled before showing button
             size: {
-                desktop: '40px',
-                mobile: '35px'
+                desktop: '40px', // Button size on desktop
+                mobile: '35px' // Button size on mobile
             },
             position: {
-                bottom: '20px',
-                right: '20px'
+                bottom: '20px', // Distance from the bottom
+                right: '20px' // Distance from the right
             },
             style: {
-                background: 'rgba(255, 255, 255, 0.15)',
-                hoverBackground: 'rgba(255, 255, 255, 0.25)',
-                color: 'white'
+                background: 'rgba(255, 255, 255, 0.15)', // Default background color
+                hoverBackground: 'rgba(255, 255, 255, 0.25)', // Background color on hover
+                color: 'white' // Text/icon color
             }
         },
         background: {
             type: 'gradient', // Options: 'gradient' or 'image'
             image: {
-                url: '',
-                blur: '10px',
-                overlay: 'rgba(0, 0, 0, 0.3)'
+                url: '', // Background image URL (if type is 'image')
+                blur: '10px', // Blur effect for the background image
+                overlay: 'rgba(0, 0, 0, 0.3)' // Overlay color for background image
             },
             gradient: {
-                colors: ['#4158D0', '#C850C0', '#FFCC70'],
-                angle: 25,
-                animationDuration: '30s'
+                colors: ['#4158D0', '#C850C0', '#FFCC70'], // Gradient colors. Use HEX values. Define 1 color for a solid background. Define more colors for a gradient background.
+                angle: 25, // Angle of gradient direction
+                animationDuration: '30s' // Duration of gradient animation
             }
         },
         shadows: {
-            enabled: true,
+            enabled: true, // Enable or disable shadows in the page
             elements: {
                 buttons: {
-                    enabled: true,
-                    default: '0 4px 15px rgba(0, 0, 0, 0.1)',
-                    hover: '0 8px 25px rgba(0, 0, 0, 0.2)'
+                    enabled: true, // Enable button shadows
+                    default: '0 4px 15px rgba(0, 0, 0, 0.1)', // Default shadow for buttons
+                    hover: '0 8px 25px rgba(0, 0, 0, 0.2)' // Shadow on hover for buttons
                 },
                 text: {
-                    enabled: true,
-                    title: '2px 2px 4px rgba(0, 0, 0, 0.2)',
-                    bio: '1px 1px 3px rgba(0, 0, 0, 0.15)',
-                    buttons: '1px 1px 2px rgba(0, 0, 0, 0.3)'
+                    enabled: true, // Enable text shadows
+                    title: '2px 2px 4px rgba(0, 0, 0, 0.2)', // Shadow for titles
+                    bio: '1px 1px 3px rgba(0, 0, 0, 0.15)', // Shadow for bio text
+                    buttons: '1px 1px 2px rgba(0, 0, 0, 0.3)' // Shadow for button text
                 }
             }
         },
         buttons: {
-            linksText: "Open Links",
-            visitText: "Go to Site"
+            linksText: "Open Links", // Text for opening links popup, when the button is an accordion with multiple links.
+            visitText: "Go to Site" // Text for visiting links, when the button is a single link but has a extended description.
         }
     },
 
     // TYPOGRAPHY: Adjust font sizes (in pixels)
     typography: {
         desktop: {
-            title: '32px',
-            bio: '20px',
-            description: '16px',
+            title: '32px', // Font size for title on desktop
+            bio: '20px', // Font size for bio on desktop
+            description: '16px', // Font size for description on desktop
             button: {
-                title: '18px',
-                description: '14px'
+                title: '18px', // Font size for button titles
+                description: '14px' // Font size for button descriptions
             }
         },
         mobile: {
-            title: '28px',
-            bio: '18px',
-            description: '15px',
+            title: '28px', // Font size for title on mobile
+            bio: '18px', // Font size for bio on mobile
+            description: '15px', // Font size for description on mobile
             button: {
-                title: '16px',
-                description: '13px'
+                title: '16px', // Font size for button titles on mobile
+                description: '13px' // Font size for button descriptions on mobile
             }
         }
     },
 
-    // ANIMATIONS: Configure page animations
+    // ANIMATIONS: Configure page animations. Available animations: fade-in, slide-up, scale-in, zoom-in, rotate-in, flip-in, bounce-in, fade-out, slide-down, scale-out, zoom-out, rotate-out, flip-out, bounce-out.
     animations: {
-        enabled: true,
+        enabled: true, // Enable or disable animations
         elements: {
             profile: {
-                type: 'fade-in',
-                duration: '1s',
-                delay: '0.2s'
+                type: 'fade-in', // Animation type for profile section
+                duration: '1s', // Animation duration
+                delay: '0.2s' // Delay before animation starts
             },
             title: {
-                type: 'slide-up',
+                type: 'slide-up', // Animation type for title
                 duration: '1s',
                 delay: '0.4s'
             },
             bio: {
-                type: 'slide-up',
+                type: 'slide-up', // Animation type for bio
                 duration: '1s',
                 delay: '0.6s'
             },
             description: {
-                type: 'slide-up',
+                type: 'slide-up', // Animation type for description
                 duration: '1s',
                 delay: '0.8s'
             },
             buttons: {
-                type: 'scale-in',
+                type: 'scale-in', // Animation type for buttons
                 duration: '0.8s',
-                staggerDelay: 0.2
+                staggerDelay: 0.2 // Staggered animation delay for multiple buttons
             }
         }
-    },
-}; 
+    }
+};
 
 // Links To Go by Uzay Yildirim - Open Source Link In Bio Tool - https://uzay.me
