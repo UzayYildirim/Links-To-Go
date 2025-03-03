@@ -85,6 +85,12 @@ You may skip any of these fields **except for** the `Index`, which is required f
 - Border styles
 - Hover transformations
 
+## Support 🌟
+
+If you find this project helpful, please consider:
+- Giving it a star ⭐
+- [Buying me a coffee](https://buymeacoffee.com/uzayyildirim)
+
 ## 📱 Mobile Support
 
 Links To Go is built with mobile-first design principles:
