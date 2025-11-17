@@ -140,7 +140,7 @@ const config = {
             style: {
                 background: 'rgba(255, 255, 255, 0.15)',
                 hoverBackground: 'rgba(255, 255, 255, 0.25)',
-                color: 'white'
+                color: '#FFFFFF'
             }
         },
         background: {
