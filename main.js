@@ -1,3 +1,10 @@
+const validationResult = validateConfig(config);
+displayValidationErrors(validationResult, config);
+
+if (!validationResult.valid) {
+    console.error('Configuration is invalid. Please fix the errors above.');
+}
+
 // Helper function to set CSS variables
 const setCSSVariable = (name, value) => {
     document.documentElement.style.setProperty(`--${name}`, value);

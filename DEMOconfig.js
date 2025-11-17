@@ -1,4 +1,9 @@
 const config = {
+    // VALIDATION: Configuration validation settings
+    validation: {
+        enabled: true // Enable or disable configuration validation error display
+    },
+
     // QUICK START: Edit these values to personalize your page
     profile: {
         title: "John Doe's Links",
