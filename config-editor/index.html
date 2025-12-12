@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Links To Go Config Editor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <div id="app" class="page">
+        <header class="page-header">
+            <div class="title-block">
+                <div class="eyebrow">Config made simple</div>
+                <h1>Links To Go Config Editor</h1>
+                <p>Guide-style controls, live preview, and gentle validation.</p>
+                <div class="status-row">
+                    <div class="status-chip" :class="validation.valid ? 'ok' : 'warn'">
+                        <i class="fas fa-circle-check"></i>
+                        <div>
+                            <div class="label">Validation</div>
+                            <div class="value">{{ validation.valid ? 'All good' : validation.errors.length + ' issues' }}</div>
+                        </div>
+                    </div>
+                    <div class="status-chip">
+                        <i class="fas fa-list"></i>
+                        <div>
+                            <div class="label">Links</div>
+                            <div class="value">{{ workingConfig.links.length || 0 }} saved</div>
+                        </div>
+                    </div>
+                    <div class="status-chip">
+                        <i class="fas fa-palette"></i>
+                        <div>
+                            <div class="label">Background</div>
+                            <div class="value">{{ workingConfig.theme.background.type==='gradient' ? 'Gradient' : 'Image' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn" @click="resetFromSource"><i class="fas fa-rotate-left"></i>Reset to config.js</button>
+                <button class="btn" @click="copyJson"><i class="fas fa-copy"></i>Copy JSON</button>
+                <button class="btn" @click="downloadJson"><i class="fas fa-download"></i>Download JSON</button>
+                <button class="btn primary" @click="downloadFullZip"><i class="fas fa-file-zipper"></i>Download Full Site</button>
+            </div>
+        </header>
+
+        <section class="layout">
+            <div class="panel controls">
+                <div class="section">
+                    <div class="section-header">
+                        <div>
+                            <h2>Validation</h2>
+                            <p class="helper">Keep it on for instant guidance while you tweak.</p>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" v-model="workingConfig.validation.enabled">
+                            <span>Enabled</span>
+                        </label>
+                    </div>
+                    <div class="alert" :class="validation.valid ? 'success' : 'danger'">
+                        <div class="alert-title">{{ validation.valid ? 'Config passes validation' : 'Config has errors' }}</div>
+                        <ul class="alert-list" v-if="validation.errors.length">
+                            <li v-for="err in validation.errors" :key="err.path">{{ err.path }} - {{ err.message }}</li>
+                        </ul>
+                        <ul class="alert-list warn" v-if="validation.warnings.length">
+                            <li v-for="warn in validation.warnings" :key="warn.path">{{ warn.path }} - {{ warn.message }}</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <details open class="section">
+                    <summary>
+                        <div class="summary-row">
+                            <span>Profile</span>
+                            <span class="summary-note">Start with the hero text and visuals</span>
+                        </div>
+                    </summary>
+                    <div class="grid two">
+                        <label>Title<input v-model="workingConfig.profile.title" type="text" placeholder="e.g. Craft with Uzay"></label>
+                        <label>Image URL<input v-model="workingConfig.profile.image" type="text" placeholder="https://..."></label>
+                        <label>Bio<textarea v-model="workingConfig.profile.bio" placeholder="Warm one-liner that sets context"></textarea></label>
+                        <label>Description Text<textarea v-model="workingConfig.profile.description.text" placeholder="Add a short elevator pitch or offering"></textarea></label>
+                        <label>Footer Text<textarea v-model="workingConfig.profile.footer.text" placeholder="Small reassurance or contact note"></textarea></label>
+                    </div>
+                    <h3>Description Style</h3>
+                    <div class="grid three">
+                        <label class="inline"><input type="checkbox" v-model="workingConfig.profile.description.style.enabled">Enabled</label>
+                        <label>Background
+                            <input class="color-input" type="color" :value="normalizeHexUi(workingConfig.profile.description.style.background)" @input="workingConfig.profile.description.style.background = $event.target.value">
+                            <input v-model="workingConfig.profile.description.style.background" type="text">
+                        </label>
+                        <label>Padding<input v-model="workingConfig.profile.description.style.padding" type="text"></label>
+                        <label>Radius<input v-model="workingConfig.profile.description.style.borderRadius" type="text"></label>
+                        <label>Blur<input v-model="workingConfig.profile.description.style.backdropBlur" type="text"></label>
+                        <label>Border<input v-model="workingConfig.profile.description.style.border" type="text"></label>
+                    </div>
+                    <h3>Footer Style</h3>
+                    <div class="grid three">
+                        <label class="inline"><input type="checkbox" v-model="workingConfig.profile.footer.style.enabled">Enabled</label>
+                        <label>Opacity<input v-model.number="workingConfig.profile.footer.style.opacity" type="number" step="0.05" min="0" max="1"></label>
+                        <label>Font Size<input v-model="workingConfig.profile.footer.style.fontSize" type="text"></label>
+                        <label>Margin Top<input v-model="workingConfig.profile.footer.style.marginTop" type="text"></label>
+                    </div>
+                </details>
+
+                <details open class="section">
+                    <summary>
+                        <div class="summary-row">
+                            <span>Links</span>
+                            <span class="summary-note">Write human-friendly titles before URLs</span>
+                        </div>
+                    </summary>
+                    <div class="section-subhead">
+                        <div class="pill soft">Arrange with the Index field</div>
+                        <div class="pill soft">Single, multi, or accordion modes</div>
+                    </div>
+                    <div class="link-list">
+                        <div class="link-card" v-for="(link, idx) in workingConfig.links" :key="idx">
+                            <div class="link-card-header">
+                                <div class="link-title">
+                                    {{ link.title || 'Untitled link' }}
+                                    <span class="mode-chip">{{ linkModeLabel(link) }}</span>
+                                </div>
+                                <button class="icon" @click="removeLink(idx)"><i class="fas fa-trash"></i></button>
+                            </div>
+                            <div class="grid two">
+                                <label>Title<input v-model="link.title" type="text" placeholder="Name people will tap"></label>
+                                <label>Index<input v-model.number="link.index" type="number" min="1"></label>
+                                <label>Description<textarea v-model="link.description" placeholder="Optional supporting sentence"></textarea></label>
+                                <label>Extend<textarea v-model="link.extend" placeholder="Use for notes or highlights"></textarea></label>
+                                <label>Color
+                                    <input class="color-input" v-model="link.color" type="color" placeholder="#5c7cfa">
+                                    <div class="chip-row subtle">
+                                        <button class="chip tiny" v-for="color in linkColorPalette" :key="color" :style="{background: color}" @click="setLinkColor(link, color)"></button>
+                                    </div>
+                                </label>
+                                <label>Icon<input v-model="link.icon" type="text" placeholder="e.g. fas fa-link"></label>
+                            </div>
+                            <div class="link-type">
+                                <label class="inline"><input type="radio" :name="'mode-'+idx" value="single" :checked="linkMode(link)==='single'" @change="setLinkMode(link,'single')">Single URL</label>
+                                <label class="inline"><input type="radio" :name="'mode-'+idx" value="multi" :checked="linkMode(link)==='multi'" @change="setLinkMode(link,'multi')">Multiple URLs</label>
+                                <label class="inline"><input type="radio" :name="'mode-'+idx" value="accordion" :checked="linkMode(link)==='accordion'" @change="setLinkMode(link,'accordion')">Accordion only</label>
+                            </div>
+                            <div v-if="linkMode(link)==='single'" class="grid one">
+                                <label>URL<input v-model="link.url" type="text"></label>
+                            </div>
+                            <div v-if="linkMode(link)==='multi'" class="urls">
+                                <div class="sub-link" v-for="(u,uIdx) in link.urls" :key="uIdx">
+                                    <input v-model="u.title" type="text" placeholder="Title">
+                                    <input v-model="u.url" type="text" placeholder="https://">
+                                    <button class="icon" @click="removeSubLink(link,uIdx)"><i class="fas fa-times"></i></button>
+                                </div>
+                                <button class="btn ghost" @click="addSubLink(link)"><i class="fas fa-plus"></i>Add URL</button>
+                            </div>
+                            <div class="link-actions">
+                                <button class="btn ghost" @click="duplicateLink(link)"><i class="fas fa-clone"></i>Duplicate</button>
+                            </div>
+                        </div>
+                        <button class="btn primary full" @click="addLink"><i class="fas fa-plus"></i>Add link</button>
+                    </div>
+                </details>
+
+                <details open class="section">
+                    <summary>
+                        <div class="summary-row">
+                            <span>Theme</span>
+                            <span class="summary-note">Fonts, buttons, and backgrounds</span>
+                        </div>
+                    </summary>
+                    <h3>Fonts</h3>
+                    <div class="grid two">
+                        <label>Titles
+                            <select v-model="workingConfig.theme.fonts.titles">
+                                <option v-for="font in fontOptions" :key="font" :value="font">{{ font }}</option>
+                            </select>
+                            <input v-model="workingConfig.theme.fonts.titles" type="text" placeholder="Custom font stack">
+                        </label>
+                        <label>Descriptions
+                            <select v-model="workingConfig.theme.fonts.descriptions">
+                                <option v-for="font in fontOptions" :key="font" :value="font">{{ font }}</option>
+                            </select>
+                            <input v-model="workingConfig.theme.fonts.descriptions" type="text" placeholder="Custom font stack">
+                        </label>
+                    </div>
+                    <h3>Top Button</h3>
+                    <div class="grid three">
+                        <label class="inline"><input type="checkbox" v-model="workingConfig.theme.topButton.enabled">Enabled</label>
+                        <label>Show After<input v-model.number="workingConfig.theme.topButton.showAfter" type="number" min="0"></label>
+                        <label>Size Desktop<input v-model="workingConfig.theme.topButton.size.desktop" type="text"></label>
+                        <label>Size Mobile<input v-model="workingConfig.theme.topButton.size.mobile" type="text"></label>
+                        <label>Bottom<input v-model="workingConfig.theme.topButton.position.bottom" type="text"></label>
+                        <label>Right<input v-model="workingConfig.theme.topButton.position.right" type="text"></label>
+                        <label>Background
+                            <input class="color-input" type="color" :value="normalizeHexUi(workingConfig.theme.topButton.style.background)" @input="workingConfig.theme.topButton.style.background = $event.target.value">
+                            <input v-model="workingConfig.theme.topButton.style.background" type="text"></label>
+                        <label>Hover BG
+                            <input class="color-input" type="color" :value="normalizeHexUi(workingConfig.theme.topButton.style.hoverBackground)" @input="workingConfig.theme.topButton.style.hoverBackground = $event.target.value">
+                            <input v-model="workingConfig.theme.topButton.style.hoverBackground" type="text"></label>
+                        <label>Color
+                            <input class="color-input" type="color" :value="normalizeHexUi(workingConfig.theme.topButton.style.color)" @input="workingConfig.theme.topButton.style.color = $event.target.value">
+                            <input v-model="workingConfig.theme.topButton.style.color" type="text"></label>
+                    </div>
+                    <h3>Background</h3>
+                    <div class="grid two">
+                        <label>Type
+                            <select v-model="workingConfig.theme.background.type">
+                                <option value="gradient">Gradient</option>
+                                <option value="image">Image</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div v-if="workingConfig.theme.background.type==='gradient'" class="grid three">
+                        <label class="range-label">
+                            <div class="label-row">Angle <span class="value-pill">{{ workingConfig.theme.background.gradient.angle }}°</span></div>
+                            <input type="range" min="0" max="360" v-model.number="workingConfig.theme.background.gradient.angle">
+                        </label>
+                        <label>Animation<input v-model="workingConfig.theme.background.gradient.animationDuration" type="text"></label>
+                        <div>
+                            <div class="label-row">Presets</div>
+                            <div class="chip-row">
+                                <button class="chip" v-for="preset in gradientPresets" :key="preset.label" @click="applyGradientPreset(preset)">
+                                    <span class="chip-swatch" :style="{background: `linear-gradient(90deg, ${preset.colors.join(',')})`}"></span>
+                                    {{ preset.label }}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="colors full">
+                            <div class="color-row" v-for="(c,cIdx) in workingConfig.theme.background.gradient.colors" :key="cIdx">
+                                <input class="color-input" type="color" v-model="workingConfig.theme.background.gradient.colors[cIdx]">
+                                <input v-model="workingConfig.theme.background.gradient.colors[cIdx]" type="text">
+                                <button class="icon" @click="removeGradient(cIdx)"><i class="fas fa-times"></i></button>
+                            </div>
+                            <button class="btn ghost" @click="addGradientColor"><i class="fas fa-plus"></i>Add Color</button>
+                        </div>
+                    </div>
+                    <div v-else class="grid three">
+                        <label>Image URL<input v-model="workingConfig.theme.background.image.url" type="text"></label>
+                        <label class="range-label">
+                            <div class="label-row">Blur <span class="value-pill">{{ imageBlurValue }}px</span></div>
+                            <input type="range" min="0" max="50" step="1" :value="imageBlurValue" @input="updateImageBlur($event.target.value)">
+                        </label>
+                        <div class="overlay-control">
+                            <div class="label-row">Overlay Color</div>
+                            <div class="color-control">
+                                <input class="color-input" type="color" :value="overlayPicker.color" @input="updateOverlayColor($event.target.value)">
+                                <span class="value-pill">{{ overlayPicker.color }}</span>
+                            </div>
+                            <div class="label-row">Overlay Opacity</div>
+                            <div class="range-row">
+                                <input type="range" min="0" max="1" step="0.05" :value="overlayPicker.alpha" @input="updateOverlayAlpha($event.target.value)">
+                                <span class="value-pill">{{ overlayPicker.alpha.toFixed(2) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <h3>Shadows</h3>
+                    <div class="grid three">
+                        <label class="inline"><input type="checkbox" v-model="workingConfig.theme.shadows.enabled">Enabled</label>
+                        <label class="inline"><input type="checkbox" v-model="workingConfig.theme.shadows.elements.buttons.enabled">Buttons</label>
+                        <label>Button Default<input v-model="workingConfig.theme.shadows.elements.buttons.default" type="text"></label>
+                        <label>Button Hover<input v-model="workingConfig.theme.shadows.elements.buttons.hover" type="text"></label>
+                        <label class="inline"><input type="checkbox" v-model="workingConfig.theme.shadows.elements.text.enabled">Text</label>
+                        <label>Title Shadow<input v-model="workingConfig.theme.shadows.elements.text.title" type="text"></label>
+                        <label>Bio Shadow<input v-model="workingConfig.theme.shadows.elements.text.bio" type="text"></label>
+                        <label>Button Text Shadow<input v-model="workingConfig.theme.shadows.elements.text.buttons" type="text"></label>
+                    </div>
+                    <h3>Button Text</h3>
+                    <div class="grid two">
+                        <label>Links Text<input v-model="workingConfig.theme.buttons.linksText" type="text"></label>
+                        <label>Visit Text<input v-model="workingConfig.theme.buttons.visitText" type="text"></label>
+                    </div>
+                </details>
+
+                <details open class="section">
+                    <summary>
+                        <div class="summary-row">
+                            <span>Typography</span>
+                            <span class="summary-note">Tune sizes separately for desktop and mobile</span>
+                        </div>
+                    </summary>
+                    <h3>Desktop</h3>
+                    <div class="grid three">
+                        <label>Title<input v-model="workingConfig.typography.desktop.title" type="text"></label>
+                        <label>Bio<input v-model="workingConfig.typography.desktop.bio" type="text"></label>
+                        <label>Description<input v-model="workingConfig.typography.desktop.description" type="text"></label>
+                        <label>Button Title<input v-model="workingConfig.typography.desktop.button.title" type="text"></label>
+                        <label>Button Desc<input v-model="workingConfig.typography.desktop.button.description" type="text"></label>
+                    </div>
+                    <h3>Mobile</h3>
+                    <div class="grid three">
+                        <label>Title<input v-model="workingConfig.typography.mobile.title" type="text"></label>
+                        <label>Bio<input v-model="workingConfig.typography.mobile.bio" type="text"></label>
+                        <label>Description<input v-model="workingConfig.typography.mobile.description" type="text"></label>
+                        <label>Button Title<input v-model="workingConfig.typography.mobile.button.title" type="text"></label>
+                        <label>Button Desc<input v-model="workingConfig.typography.mobile.button.description" type="text"></label>
+                    </div>
+                </details>
+
+                <details open class="section">
+                    <summary>
+                        <div class="summary-row">
+                            <span>Animations</span>
+                            <span class="summary-note">Keep motion consistent across elements</span>
+                        </div>
+                    </summary>
+                    <div class="grid two">
+                        <label class="inline"><input type="checkbox" v-model="workingConfig.animations.enabled">Enabled</label>
+                    </div>
+                    <div class="grid three">
+                        <template v-for="key in animationKeys">
+                            <div class="anim-card" :key="key">
+                                <div class="anim-title">{{ key }}</div>
+                                <label>Type
+                                    <select v-model="workingConfig.animations.elements[key].type">
+                                        <option v-for="type in animationTypes" :key="type" :value="type">{{ type }}</option>
+                                    </select>
+                                </label>
+                                <label>Duration<input v-model="workingConfig.animations.elements[key].duration" type="text"></label>
+                                <label>Delay<input v-model="workingConfig.animations.elements[key].delay" type="text"></label>
+                                <label v-if="key==='buttons'">Stagger<input v-model.number="workingConfig.animations.elements[key].staggerDelay" type="number" step="0.1" min="0"></label>
+                            </div>
+                        </template>
+                    </div>
+                </details>
+
+                <details class="section">
+                    <summary>
+                        <div class="summary-row">
+                            <span>SEO</span>
+                            <span class="summary-note">Friendly text for search and social</span>
+                        </div>
+                    </summary>
+                    <div class="grid two">
+                        <label>Custom Description<textarea v-model="workingConfig.seo.customDescription"></textarea></label>
+                        <label>Twitter Handle<input v-model="workingConfig.seo.social.twitter" type="text"></label>
+                        <label>OG Image<input v-model="workingConfig.seo.images.og" type="text"></label>
+                        <label>Twitter Image<input v-model="workingConfig.seo.images.twitter" type="text"></label>
+                    </div>
+                    <h3>Keywords</h3>
+                    <div class="tags">
+                        <span class="tag" v-for="(kw, kwIdx) in workingConfig.seo.additionalKeywords" :key="kwIdx">
+                            {{ kw }}
+                            <button class="icon" @click="removeKeyword(kwIdx)"><i class="fas fa-times"></i></button>
+                        </span>
+                        <div class="tag-input">
+                            <input v-model="keywordDraft" @keyup.enter.prevent="addKeyword" placeholder="Add keyword">
+                            <button class="icon" @click="addKeyword"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+                    <h3>Meta Tags</h3>
+                    <div class="meta-list">
+                        <div class="meta-row" v-for="(meta, mIdx) in workingConfig.seo.meta" :key="mIdx">
+                            <textarea v-model="metaJson[mIdx]" @input="updateMeta(mIdx)" spellcheck="false"></textarea>
+                            <button class="icon" @click="removeMeta(mIdx)"><i class="fas fa-trash"></i></button>
+                        </div>
+                        <button class="btn ghost" @click="addMeta"><i class="fas fa-plus"></i>Add meta object</button>
+                    </div>
+                </details>
+            </div>
+
+            <div class="panel preview">
+                <div class="preview-header">
+                    <div>
+                        <div class="muted">Live preview</div>
+                        <div class="preview-title">{{ workingConfig.profile.title }}</div>
+                    </div>
+                    <button class="btn ghost" @click="toggleAccent">{{ accentMode==='dark' ? 'Dark' : 'Light' }} Chrome</button>
+                </div>
+                <div class="preview-frame" :data-accent="accentMode">
+                    <div class="preview-canvas" :style="previewBackground" :class="{gradient: workingConfig.theme.background.type==='gradient'}">
+                        <div class="preview-overlay" v-if="workingConfig.theme.background.type==='image'" :style="previewOverlay"></div>
+                        <div class="preview-content" :style="previewFonts">
+                            <div class="preview-profile">
+                                <img v-if="workingConfig.profile.image" :src="workingConfig.profile.image" class="preview-avatar" alt="">
+                                <h2 class="preview-title-text" :style="previewTitleStyle">{{ workingConfig.profile.title }}</h2>
+                                <p class="preview-bio" :style="previewBioStyle">{{ workingConfig.profile.bio }}</p>
+                                <p v-if="workingConfig.profile.description.text" class="preview-description" :style="previewDescriptionStyle">{{ workingConfig.profile.description.text }}</p>
+                            </div>
+                            <div class="preview-links">
+                                <div class="preview-link" v-for="link in sortedLinks" :key="link.index" :style="linkStyle(link)">
+                                    <div class="preview-link-main">
+                                        <i v-if="link.icon" :class="link.icon"></i>
+                                        <div class="text">
+                                            <div class="t">{{ link.title }}</div>
+                                            <div class="d" v-if="link.description">{{ link.description }}</div>
+                                        </div>
+                                        <i v-if="link.extend" class="fas fa-chevron-down"></i>
+                                    </div>
+                                    <div class="preview-extend" v-if="link.extend">
+                                        <p>{{ link.extend }}</p>
+                                        <a v-if="link.urls" class="pill">{{ workingConfig.theme.buttons.linksText || 'Open Links' }}</a>
+                                        <a v-else-if="link.url" class="pill">{{ workingConfig.theme.buttons.visitText || 'Visit' }}</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-if="workingConfig.profile.footer.text" class="preview-footer" :style="previewFooterStyle">{{ workingConfig.profile.footer.text }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="../config.js"></script>
+    <script src="../validation.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="./app.js"></script>
+</body>
+</html>

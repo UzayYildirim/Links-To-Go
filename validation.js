@@ -46,22 +46,21 @@ const validateConfig = (config) => {
 
     const validateUrl = (url, path, allowRelative = false) => {
         if (!url || typeof url !== 'string') return false;
-        
-        if (allowRelative && (url.startsWith('/') || url.startsWith('./') || url.startsWith('../'))) {
+        const value = url.trim();
+        if (!value) return false;
+        if (allowRelative && (value.startsWith('/') || value.startsWith('./') || value.startsWith('../'))) {
             return true;
         }
-        
-        if (url.startsWith('data:')) {
+        if (value.startsWith('data:')) {
             return true;
         }
-        
-        if (url.startsWith('//')) {
-            return true;
-        }
-        
         try {
-            new URL(url);
-            return true;
+            const parsed = new URL(value.startsWith('//') ? `https:${value}` : value, 'https://example.com');
+            const protocolAllowed = ['http:', 'https:'].includes(parsed.protocol);
+            if (!protocolAllowed && !allowRelative) {
+                return false;
+            }
+            return parsed.hostname && parsed.hostname.length > 0;
         } catch {
             return false;
         }
@@ -69,20 +68,18 @@ const validateConfig = (config) => {
 
     const validateColor = (color, path) => {
         if (!color || typeof color !== 'string') return false;
-        
         const trimmed = color.trim();
-        
-        const hexPattern = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+        const hexPattern = /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$/;
         const rgbPattern = /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(?:,\s*[\d.]+\s*)?\)$/i;
         const hslPattern = /^hsla?\(\s*\d+\s*,\s*\d+%\s*,\s*\d+%\s*(?:,\s*[\d.]+\s*)?\)$/i;
         const cssVarPattern = /^var\(--[\w-]+\)$/;
-        
+        const gradientPattern = /(linear|radial|conic)-gradient\([^)]*\)$/i;
         const namedColors = ['transparent', 'inherit', 'initial', 'unset', 'currentColor'];
-        
-        return hexPattern.test(trimmed) || 
-               rgbPattern.test(trimmed) || 
+        return hexPattern.test(trimmed) ||
+               rgbPattern.test(trimmed) ||
                hslPattern.test(trimmed) ||
                cssVarPattern.test(trimmed) ||
+               gradientPattern.test(trimmed) ||
                namedColors.includes(trimmed.toLowerCase());
     };
 
@@ -91,7 +88,14 @@ const validateConfig = (config) => {
         const trimmed = value.trim();
         const lengthPattern = /^-?\d+(\.\d+)?(px|em|rem|%|vh|vw|vmin|vmax|pt|pc|in|cm|mm|ex|ch)$/i;
         const zeroPattern = /^0(px|em|rem|%)?$/i;
-        return lengthPattern.test(trimmed) || zeroPattern.test(trimmed);
+        if (trimmed.toLowerCase() === 'auto') return true;
+        if (trimmed.startsWith('calc(') && trimmed.endsWith(')')) return true;
+        const isLengthToken = (token) => lengthPattern.test(token) || zeroPattern.test(token);
+        const parts = trimmed.split(/\s+/);
+        if (parts.length >= 1 && parts.length <= 4 && parts.every(isLengthToken)) {
+            return true;
+        }
+        return isLengthToken(trimmed);
     };
 
     const validateCssTime = (value, path) => {
@@ -323,6 +327,17 @@ const validateConfig = (config) => {
                     addError(path, 'must be an array of strings', 'Use an array like: ["keyword1", "keyword2"]');
                     return false;
                 }
+                if (value) {
+                    const empties = value.filter(item => typeof item === 'string' && item.trim() === '');
+                    if (empties.length > 0) {
+                        addWarning(path, 'contains empty keywords', 'Remove blank keyword entries');
+                    }
+                    const normalized = value.filter(item => typeof item === 'string').map(item => item.trim().toLowerCase()).filter(Boolean);
+                    const duplicates = normalized.filter((item, idx) => normalized.indexOf(item) !== idx);
+                    if (duplicates.length > 0) {
+                        addWarning(path, `contains duplicate keywords: ${[...new Set(duplicates)].join(', ')}`, 'Keep each keyword unique');
+                    }
+                }
                 return true;
             });
 
@@ -364,6 +379,29 @@ const validateConfig = (config) => {
                 if (value && !value.every(item => validateType(item, 'object', path))) {
                     addError(path, 'must be an array of objects', 'Use an array: [{ name: "...", content: "..." }, ...]');
                     return false;
+                }
+                if (value) {
+                    value.forEach((item, idx) => {
+                        const metaPath = `${path}[${idx}]`;
+                        if (!validateType(item, 'object', metaPath)) {
+                            addError(metaPath, 'must be an object', 'Use an object: { name/property/http-equiv/charset, content }');
+                            return;
+                        }
+                        const hasName = typeof item.name === 'string' && item.name.trim() !== '';
+                        const hasProperty = typeof item.property === 'string' && item.property.trim() !== '';
+                        const hasHttpEquiv = typeof item['http-equiv'] === 'string' && item['http-equiv'].trim() !== '';
+                        const hasCharset = typeof item.charset === 'string' && item.charset.trim() !== '';
+                        const hasContent = typeof item.content === 'string' && item.content.trim() !== '';
+                        if (!hasName && !hasProperty && !hasHttpEquiv && !hasCharset) {
+                            addWarning(metaPath, 'needs name/property/http-equiv/charset', 'Add at least one identifying field');
+                        }
+                        if ((hasName || hasProperty || hasHttpEquiv) && !hasContent && !hasCharset) {
+                            addWarning(`${metaPath}.content`, 'missing content', 'Provide a content string for this meta tag');
+                        }
+                        if (Object.keys(item || {}).length === 0) {
+                            addWarning(metaPath, 'is empty', 'Add meta fields such as name and content');
+                        }
+                    });
                 }
                 return true;
             });

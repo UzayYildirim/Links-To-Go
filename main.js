@@ -156,7 +156,7 @@ config.links.sort((a, b) => a.index - b.index).forEach((link, index) => {
 
         // Add click handler for accordion
         linkButton.addEventListener('click', (e) => {
-            if (!e.target.closest('.popup-content') && !e.target.closest('.external-link')) {
+            if (!e.target.closest('.popup-content') && !e.target.closest('.external-link') && !e.target.closest('.open-links-button')) {
                 linkButton.classList.toggle('extended');
             }
         });
@@ -165,7 +165,7 @@ config.links.sort((a, b) => a.index - b.index).forEach((link, index) => {
         if (link.urls) {
             const linksButton = document.createElement('a');
             linksButton.href = 'javascript:void(0)';
-            linksButton.className = 'external-link';
+            linksButton.className = 'open-links-button';
             linksButton.innerHTML = `
                 <i class="fas fa-external-link-alt"></i>
                 ${config.theme.buttons?.linksText || 'Links'}

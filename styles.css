@@ -66,11 +66,10 @@ body.gradient-bg {
     object-position: center;
     box-shadow: var(--profile-image-shadow, 0 4px 20px rgba(0, 0, 0, 0.15));
     border: 3px solid rgba(255, 255, 255, 0.2);
-    transition: transform 0.3s ease, border-color 0.3s ease;
+    transition: border-color 0.3s ease;
 }
 
 #profileImage:hover {
-    transform: scale(1.05);
     border-color: rgba(255, 255, 255, 0.3);
 }
 
@@ -139,7 +138,6 @@ body.gradient-bg {
 }
 
 .link-button:hover {
-    transform: translateY(-2px);
     border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: var(--button-shadow-hover);
     filter: brightness(1.1);
@@ -351,12 +349,40 @@ body.gradient-bg {
 
 .external-link:hover {
     background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
 }
 
 .external-link i {
     margin-right: 8px;
     font-size: 12px;
+}
+
+.open-links-button {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 15px;
+    padding: 10px 18px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    float: right;
+    margin-left: auto;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.open-links-button:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.open-links-button i {
+    margin-right: 8px;
+    font-size: 13px;
 }
 
 .extend-content::after {
@@ -416,7 +442,6 @@ body.gradient-bg {
 
 .top-button:hover {
     background: var(--top-button-hover-bg, rgba(255, 255, 255, 0.25));
-    transform: translateY(-2px);
     border-color: rgba(255, 255, 255, 0.3);
     box-shadow: var(--button-shadow-hover);
 }
@@ -500,7 +525,6 @@ body.gradient-bg {
 
 .popup-link:hover {
     background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
 }
 
 .popup-close {
